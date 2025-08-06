@@ -1,68 +1,77 @@
-//Simulador de comida rapida 
+let listaHamburguesas = [
+  {
+    id: 1,
+    nombre: "Clásica",
+    precio: 1500,
+    img: "https://cdn-icons-png.flaticon.com/512/3075/3075977.png",
+  },
+  {
+    id: 2,
+    nombre: "Doble Queso",
+    precio: 2000,
+    img: "https://cdn-icons-png.flaticon.com/512/3075/3075977.png",
+  },
+  {
+    id: 3,
+    nombre: "Vegana",
+    precio: 1800,
+    img: "https://cdn-icons-png.flaticon.com/512/3075/3075977.png",
+  },
+];
 
-let hamburguesa = ["Clasica", "Doble", "Triple"];
-let hamburguesaPrecio = [10000, 13000, 15000];
+let pedido = JSON.parse(localStorage.getItem("pedido")) || [];
 
-let papas = ["Chicas", "Grandes", "Con cheddar"];
-let papasPrecio = [1000, 2000, 3500];
+let menu = document.getElementById("menu");
 
-let bebida = ["Coca-Cola", "Jugo saborizado", "Agua"];
-let precioBebida = [2500, 1800, 1000];
+for (let i = 0; i < listaHamburguesas.length; i++) {
+  let card = document.createElement("div");
+  card.classList.add("card");
+  card.innerHTML = `
+        <img src="${listaHamburguesas[i].img}" alt="${listaHamburguesas[i].nombre}">
+        <h3>${listaHamburguesas[i].nombre}</h3>
+        <p>$${listaHamburguesas[i].precio}</p>
+        <button id="btn${listaHamburguesas[i].id}">Agregar</button>
+    `;
+  menu.appendChild(card);
 
-let eleccionHamburguesa = prompt(
-  "Elegi tu hamburguesa: \n" +
-    "1. Hamburguesa Clasica- $10000\n" +
-    "2. Hamburguesa Doble- $13000 \n" +
-    "3. Hamburguesa Con cheddar $15000"
-);
+  let boton = document.getElementById(`btn${listaHamburguesas[i].id}`);
+  boton.addEventListener("click", function () {
+    agregarAlPedido(listaHamburguesas[i]);
+  });
+}
 
-let indiceHamburguesa = parseInt(eleccionHamburguesa) - 1;
-let seleccionHamburguesa = hamburguesa[indiceHamburguesa];
-let precioSeleccionHamburguesa = hamburguesaPrecio[indiceHamburguesa];
-alert(
-  "Elegiste: Hamburguesa " +
-    seleccionHamburguesa +
-    "\n Precio: $" +
-    precioSeleccionHamburguesa
-);
+function agregarAlPedido(hamburguesa) {
+  pedido.push(hamburguesa);
+  localStorage.setItem("pedido", JSON.stringify(pedido));
+  mostrarPedido();
+}
 
-let eleccionPapas = prompt(
-  "Elegi las papas: \n" +
-    "1. Papas Chicas- $1000 \n" +
-    "2. Papas Grandes- $2000 \n" +
-    "3. Papas Con Cheddar- $3000 \n"
-);
+function mostrarPedido() {
+  let listaPedido = document.getElementById("pedido");
+  listaPedido.innerHTML = "";
 
-let indicePapas = parseInt(eleccionHamburguesa) - 1;
-let seleccionPapas = papas[indicePapas];
-let precioSeleccionPapas = papasPrecio[indicePapas];
-alert(
-  "Elegiste: Papas" + seleccionPapas + "\n Precio: $" + precioSeleccionPapas
-);
+  let total = pedido.reduce((acc, item) => acc + item.precio, 0);
 
-let eleccionBebida = prompt(
-  "Elegi la bebida: \n" +
-    "1. Coca-Cola- $2500 \n" +
-    "2. Jugo saborizado - $1800 \n" +
-    "3. Agua - $1000"
-);
+  for (let i = 0; i < pedido.length; i++) {
+    let li = document.createElement("li");
+    li.textContent = `${pedido[i].nombre} - $${pedido[i].precio}`;
+    listaPedido.appendChild(li);
+  }
 
-let indiceBebidas = parseInt(eleccionBebida) - 1;
-let seleccionBebidas = bebida[indiceBebidas];
-let precioSeleccionBebida = precioBebida[indiceBebidas];
-alert("Elegiste: " + seleccionBebidas + "\n Precio: $" + precioSeleccionBebida);
+  document.getElementById("total").textContent = `Total: $${total}`;
+}
 
-let total = precioSeleccionHamburguesa + precioSeleccionPapas + precioSeleccionBebida;
-alert(
-  "Resumen de compra:\n 🍔Hamburguesa " +
-    seleccionHamburguesa +
-    " \n 🍟Papas " +
-    seleccionPapas +
-    "\n 🥤" +
-    seleccionBebidas +
-    "\n 💰 Total: $" +
-    total
-);
+//muestra pedido final
+mostrarPedido();
 
-let confirmar = confirm("¿Querés confirmar tu pedido?");
-alert("Pedido en preparacion. Muchas gracias");
+function confirmarPedido() {
+    if (pedido.length > 0) {
+        alert("¡Pedido confirmado!\nTotal: $" + 
+              pedido.reduce((acc, item) => acc + item.precio, 0));
+        pedido = [];
+        localStorage.setItem("pedido", JSON.stringify(pedido));
+        mostrarPedido();
+    } else {
+        alert("Tu pedido está vacío");
+    }
+}
